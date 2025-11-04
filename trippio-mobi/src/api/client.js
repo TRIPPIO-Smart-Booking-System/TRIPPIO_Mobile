@@ -8,7 +8,7 @@ const LOCALHOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 
 // Get API URL from config or use platform-specific fallback
 const extra = Constants.expoConfig?.extra || Constants.manifest?.extra || {};
-const BASE_URL = extra.API_BASE_URL || `http://${LOCALHOST}:7142`;
+const BASE_URL = extra.API_BASE_URL || `http://${LOCALHOST}:5126`;
 
 
 

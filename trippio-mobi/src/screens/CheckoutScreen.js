@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, ActivityIndicator, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { startCheckout, getCheckoutStatus } from '../api/checkout';
+import { useUser } from '../contexts/UserContext';
 
 export default function CheckoutScreen({ route, navigation }) {
+  const { user } = useUser();
   const { basket } = route.params || {};
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
@@ -30,9 +32,9 @@ export default function CheckoutScreen({ route, navigation }) {
     try {
       console.log('Starting checkout with basket:', basket);
       
-      // Get userId from AsyncStorage to pass to backend
-      const userId = await AsyncStorage.getItem('userId');
-      console.log('UserID from storage:', userId);
+      // Get userId from UserContext
+      const userId = user?.id;
+      console.log('UserID from context:', userId);
       
       const checkoutRequest = { 
         userId: userId, // Pass userId explicitly

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import { getOrderById } from '../api/order';
+import Colors from '../constants/colors';
 
 export default function OrderDetailScreen({ route, navigation }) {
   const { orderId } = route.params;
@@ -198,7 +199,7 @@ export default function OrderDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     color: '#dc3545',
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
   },

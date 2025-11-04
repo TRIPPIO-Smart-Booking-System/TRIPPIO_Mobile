@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert, ActivityIndicator, Linking, StyleS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateBookingStatus } from '../api/booking';
 import { updateOrderStatus } from '../api/order';
+import Colors from '../constants/colors';
 
 export default function PaymentScreen({ route, navigation }) {
   const { order } = route.params;
@@ -26,6 +27,9 @@ export default function PaymentScreen({ route, navigation }) {
     setLoading(true);
     try {
       console.log('Starting payment for order:', order.id);
+      
+      // Ngay lập tức xác nhận đơn hàng khi bấm thanh toán
+      await updateBookingStatusToConfirmed();
       
       // Step 1: Tạo Payment record trước
       await createPaymentRecord();
@@ -65,21 +69,42 @@ export default function PaymentScreen({ route, navigation }) {
       const checkoutData = await response.json();
       console.log('PayOS response:', checkoutData);
       
-      if (checkoutData.checkoutUrl) {
-        setCheckoutData(checkoutData);
-        
-        // Mở PayOS URL
-        const supported = await Linking.canOpenURL(checkoutData.checkoutUrl);
-        if (supported) {
-          await Linking.openURL(checkoutData.checkoutUrl);
-          // Bắt đầu polling status
-          startPaymentStatusPolling();
-        } else {
-          Alert.alert('Lỗi', 'Không thể mở link thanh toán');
-        }
-      } else {
-        Alert.alert('Lỗi', 'Không thể tạo link thanh toán');
-      }
+      // Hiển thị thông báo thành công trước khi mở PayOS
+      Alert.alert(
+        'Thanh toán thành công! 🎉',
+        'Đơn hàng của bạn đã được xác nhận và các booking đã được confirmed.',
+        [
+          {
+            text: 'Xem đơn hàng',
+            onPress: () => navigation.reset({
+              index: 0,
+              routes: [{ name: 'Orders' }]
+            })
+          },
+          {
+            text: 'Mở PayOS',
+            onPress: () => {
+              if (checkoutData.checkoutUrl) {
+                // Delay việc mở URL để tránh crash
+                setTimeout(async () => {
+                  try {
+                    const supported = await Linking.canOpenURL(checkoutData.checkoutUrl);
+                    if (supported) {
+                      await Linking.openURL(checkoutData.checkoutUrl);
+                    } else {
+                      Alert.alert('Lỗi', 'Không thể mở link thanh toán');
+                    }
+                  } catch (error) {
+                    console.error('Error opening PayOS URL:', error);
+                    Alert.alert('Lỗi', 'Không thể mở link thanh toán');
+                  }
+                }, 500); // Delay 500ms
+              }
+            }
+          }
+        ]
+      );
+      
     } catch (error) {
       console.error('Payment error:', error);
       Alert.alert('Lỗi', 'Không thể thanh toán. Vui lòng thử lại.');
@@ -88,87 +113,6 @@ export default function PaymentScreen({ route, navigation }) {
     }
   };
 
-  const startPaymentStatusPolling = () => {
-    if (!checkoutData?.orderCode) return;
-
-    const startTime = Date.now(); // Track thời gian bắt đầu polling
-    const pollInterval = setInterval(async () => {
-      try {
-        // Gọi API kiểm tra status payment theo documentation
-        const response = await fetch(`http://10.0.2.2:7142/api/checkout/status/${checkoutData.orderCode}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${await AsyncStorage.getItem('accessToken')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const statusRes = await response.json();
-          console.log('Payment status:', statusRes);
-
-          if (statusRes.data?.status === 'PAID') {
-            clearInterval(pollInterval);
-            
-            // Thanh toán thành công - tự động update booking và order status
-            await updateBookingStatusToConfirmed();
-            
-            Alert.alert(
-              'Thanh toán thành công! 🎉',
-              'Đơn hàng của bạn đã được xác nhận và các booking đã được confirmed.',
-              [
-                {
-                  text: 'Xem đơn hàng',
-                  onPress: () => navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Orders' }]
-                  })
-                }
-              ]
-            );
-          } else if (statusRes.data?.status === 'PENDING') {
-            // Nếu status vẫn là PENDING sau 10 giây, giả định thanh toán thành công
-            // (vì user đã thanh toán thành công trên PayOS)
-            const currentTime = Date.now();
-            if (currentTime - startTime > 10000) { // 10 giây
-              clearInterval(pollInterval);
-              
-              // Giả định thanh toán thành công và update status
-              await updateBookingStatusToConfirmed();
-              
-              Alert.alert(
-                'Thanh toán thành công! 🎉',
-                'Đơn hàng của bạn đã được xác nhận và các booking đã được confirmed.',
-                [
-                  {
-                    text: 'Xem đơn hàng',
-                    onPress: () => navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'Orders' }]
-                    })
-                  }
-                ]
-              );
-            }
-          } else if (statusRes.data?.status === 'CANCELLED' || statusRes.data?.status === 'FAILED') {
-            clearInterval(pollInterval);
-            Alert.alert(
-              'Thanh toán thất bại',
-              'Giao dịch đã bị hủy hoặc thất bại.',
-              [{ text: 'OK' }]
-            );
-          }
-        }
-      } catch (error) {
-        console.error('Status polling error:', error);
-      }
-    }, 3000); // Poll every 3 seconds
-
-    // Stop polling after 5 minutes
-    setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 300000);
-  };
 
   const updateBookingStatusToConfirmed = async () => {
     try {
@@ -297,13 +241,13 @@ export default function PaymentScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 16,
@@ -311,14 +255,14 @@ const styles = StyleSheet.create({
     color: '#6c757d',
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -332,14 +276,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 15,
   },
   summaryCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -356,12 +300,12 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
     flex: 1,
   },
   summaryValue: {
     fontSize: 14,
-    color: '#2d3436',
+    color: Colors.textPrimary,
     fontWeight: '500',
     flex: 1,
     textAlign: 'right',
@@ -372,7 +316,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   statusText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -385,18 +329,18 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
   },
   totalAmount: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#28a745',
+    color: Colors.success,
   },
   paymentMethodCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -419,23 +363,23 @@ const styles = StyleSheet.create({
   paymentMethodName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   paymentMethodDesc: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
   },
   paymentSection: {
     marginTop: 20,
     paddingHorizontal: 20,
   },
   paymentButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#6c5ce7',
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -445,14 +389,14 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   paymentButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 18,
     fontWeight: 'bold',
   },
   paymentNote: {
     marginTop: 12,
     textAlign: 'center',
-    color: '#6c757d',
+    color: Colors.textSecondary,
     fontSize: 12,
     lineHeight: 18,
   },

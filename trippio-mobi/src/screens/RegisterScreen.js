@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { register } from '../api/auth';
+import Colors from '../constants/colors';
 
 export default function RegisterScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -257,7 +258,7 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
@@ -274,13 +275,13 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#6c5ce7',
+    color: Colors.primary,
     marginBottom: 16,
   },
   welcomeText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {

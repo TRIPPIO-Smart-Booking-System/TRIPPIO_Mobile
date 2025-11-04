@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { UserProvider } from './src/contexts/UserContext';
 
 // Auth Screens
 import SplashScreen from './src/screens/SplashScreen';
@@ -35,6 +36,10 @@ import PaymentScreen from './src/screens/PaymentScreen';
 import PaymentHistoryScreen from './src/screens/PaymentHistoryScreen';
 import BookingsScreen from './src/screens/BookingsScreen';
 import BookingDetailScreen from './src/screens/BookingDetailScreen';
+
+// AI & Admin Screens
+import AIChatScreen from './src/screens/AIChatScreen';
+import AdminDashboardScreen from './src/screens/AdminDashboardScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -105,9 +110,10 @@ function MainTabs() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
-      <Stack.Navigator initialRouteName="Splash">
+    <UserProvider>
+      <NavigationContainer>
+        <StatusBar style="light" />
+        <Stack.Navigator initialRouteName="Splash">
         {/* Splash Screen */}
         <Stack.Screen 
           name="Splash" 
@@ -222,8 +228,21 @@ export default function App() {
           component={BookingDetailScreen}
           options={{ title: 'Chi tiết booking' }}
         />
+
+        {/* AI & Admin Screens */}
+        <Stack.Screen 
+          name="AIChat" 
+          component={AIChatScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="AdminDashboard" 
+          component={AdminDashboardScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
+    </UserProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { verifyEmail } from '../api/auth';
+import Colors from '../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function VerifyEmailScreen({ route, navigation }) {

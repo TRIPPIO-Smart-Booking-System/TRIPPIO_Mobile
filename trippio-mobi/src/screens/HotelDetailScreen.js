@@ -13,8 +13,11 @@ import {
 import { getHotelRooms } from '../api/hotel';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../contexts/UserContext';
+import Colors from '../constants/colors';
 
 export default function HotelDetailScreen({ route }) {
+  const { user } = useUser();
   const { hotelId } = route.params;
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +42,7 @@ export default function HotelDetailScreen({ route }) {
 
   const addRoomToBasket = async (room) => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
+      const userId = user?.id;
       if (!userId) return Alert.alert('Lỗi', 'Chưa đăng nhập');
       
       await addItem(userId, { 
@@ -104,7 +107,7 @@ export default function HotelDetailScreen({ route }) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6c5ce7" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Đang tải thông tin phòng...</Text>
       </View>
     );
@@ -140,21 +143,21 @@ export default function HotelDetailScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#6c757d',
+    color: Colors.textSecondary,
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
     paddingBottom: 30,
@@ -162,7 +165,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -173,10 +176,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   roomCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -210,17 +213,17 @@ const styles = StyleSheet.create({
   roomType: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   roomCapacity: {
     fontSize: 16,
-    color: '#636e72',
+    color: Colors.textSecondary,
     marginBottom: 12,
   },
   roomDescription: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -231,8 +234,8 @@ const styles = StyleSheet.create({
   },
   featureItem: {
     fontSize: 12,
-    color: '#6c5ce7',
-    backgroundColor: '#f8f9fa',
+    color: Colors.primary,
+    backgroundColor: Colors.background,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -249,20 +252,20 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 12,
-    color: '#636e72',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   priceValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#00b894',
+    color: Colors.success,
   },
   addToBasketButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
-    shadowColor: '#6c5ce7',
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   addToBasketText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -289,12 +292,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#636e72',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
 });

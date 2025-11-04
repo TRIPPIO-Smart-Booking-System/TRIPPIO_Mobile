@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { login } from '../api/auth';
+import { useUser } from '../contexts/UserContext';
+import Colors from '../constants/colors';
 
 export default function LoginScreen({ navigation }) {
+  const { login: loginUser } = useUser();
   const [usernameOrPhone, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,24 +27,30 @@ export default function LoginScreen({ navigation }) {
         await AsyncStorage.setItem('accessToken', accessToken);
         await AsyncStorage.setItem('refreshToken', refreshToken);
         
-        // Lưu thông tin user chi tiết
-        await AsyncStorage.multiSet([
-          ['userId', user.id],
-          ['userName', user.userName || ''],
-          ['email', user.email || ''],
-          ['firstName', user.firstName || ''],
-          ['lastName', user.lastName || ''],
-          ['phoneNumber', user.phoneNumber || ''],
-          ['fullName', user.fullName || ''],
-          ['balance', user.balance?.toString() || '0'],
-          ['isEmailVerified', user.isEmailVerified?.toString() || 'false'],
-          ['isPhoneVerified', user.isPhoneVerified?.toString() || 'false'],
-          ['dateCreated', user.dateCreated || ''],
-          ['dob', user.dob || ''],
-          ['avatar', user.avatar || '']
-        ]);
+        // Chuẩn bị user data với roles
+        const userData = {
+          id: user.id,
+          userName: user.userName || '',
+          email: user.email || '',
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          phoneNumber: user.phoneNumber || '',
+          fullName: user.fullName || '',
+          balance: user.balance || 0,
+          isEmailVerified: user.isEmailVerified || false,
+          isPhoneVerified: user.isPhoneVerified || false,
+          dateCreated: user.dateCreated || '',
+          dob: user.dob || '',
+          avatar: user.avatar || '',
+          roles: user.roles || ['customer'], // Mặc định là customer nếu không có roles
+          accessToken,
+          refreshToken
+        };
         
-        console.log('User info saved:', user);
+        // Sử dụng UserContext để lưu user data
+        await loginUser(userData);
+        
+        console.log('User logged in:', userData);
         navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
       } else {
         Alert.alert('Đăng nhập thất bại', res.message || 'Kiểm tra lại thông tin');
@@ -153,18 +162,18 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#6c5ce7',
+    color: Colors.primary,
     marginBottom: 16,
   },
   welcomeText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#636e72',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   form: {
@@ -176,18 +185,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    shadowColor: '#000',
+    borderColor: Colors.inputBorder,
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -197,12 +206,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   loginButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: '#6c5ce7',
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -212,7 +221,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   loginButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -221,7 +230,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   forgotButtonText: {
-    color: '#6c5ce7',
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: '500',
   },

@@ -14,6 +14,7 @@ import { getAllTransports, getTransportsByType } from '../api/transport';
 import { createBooking } from '../api/booking';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../constants/colors';
 
 const { width } = Dimensions.get('window');
 

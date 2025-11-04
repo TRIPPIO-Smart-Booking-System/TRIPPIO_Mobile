@@ -14,6 +14,7 @@ import { getAllShows, getShowsByCity } from '../api/show';
 import { createBooking } from '../api/booking';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../constants/colors';
 
 const { width } = Dimensions.get('window');
 
@@ -188,17 +189,17 @@ export default function ShowScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -222,8 +223,8 @@ const styles = StyleSheet.create({
     borderColor: '#e9ecef',
   },
   cityButtonActive: {
-    backgroundColor: '#6c5ce7',
-    borderColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   cityButtonText: {
     fontSize: 14,
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   cityButtonTextActive: {
-    color: 'white',
+    color: Colors.textWhite,
   },
   showsList: {
     padding: 10,
@@ -240,11 +241,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   showCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     marginBottom: 15,
     width: (width - 30) / 2,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,

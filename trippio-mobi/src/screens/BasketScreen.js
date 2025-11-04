@@ -3,20 +3,28 @@ import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, RefreshContr
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBasket, removeItem } from '../api/basket';
 import { createOrder } from '../api/order';
+import { useUser } from '../contexts/UserContext';
 
 export default function BasketScreen({ navigation }) {
+  const { user } = useUser();
   const [basket, setBasket] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadBasket();
-  }, []);
+    console.log('BasketScreen - useEffect triggered, user:', user);
+    if (user) {
+      loadBasket();
+    }
+  }, [user]);
 
   const loadBasket = async () => {
     try {
       setLoading(true);
-      const userId = await AsyncStorage.getItem('userId');
+      console.log('BasketScreen - User from context:', user);
+      console.log('BasketScreen - User ID:', user?.id);
+      const userId = user?.id;
       if (!userId) {
+        console.log('BasketScreen - No user ID found, showing login error');
         Alert.alert('Lỗi', 'Vui lòng đăng nhập lại');
         return;
       }
@@ -59,7 +67,7 @@ export default function BasketScreen({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              const userId = await AsyncStorage.getItem('userId');
+              const userId = user?.id;
               const item = basket.items[itemIndex];
               
               if (userId && item) {
@@ -89,7 +97,7 @@ export default function BasketScreen({ navigation }) {
     }
 
     try {
-      const userId = await AsyncStorage.getItem('userId');
+      const userId = user?.id;
       if (!userId) {
         Alert.alert('Lỗi', 'Vui lòng đăng nhập lại');
         return;

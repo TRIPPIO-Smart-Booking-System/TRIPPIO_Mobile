@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, RefreshControl, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getOrdersByUser } from '../api/order';
+import { useUser } from '../contexts/UserContext';
 
 export default function OrdersScreen({ navigation }) {
+  const { user } = useUser();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +16,9 @@ export default function OrdersScreen({ navigation }) {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const userId = await AsyncStorage.getItem('userId');
+      
+      // Sử dụng user ID từ UserContext thay vì AsyncStorage
+      const userId = user?.id;
       if (!userId) {
         Alert.alert('Lỗi', 'Vui lòng đăng nhập lại');
         return;

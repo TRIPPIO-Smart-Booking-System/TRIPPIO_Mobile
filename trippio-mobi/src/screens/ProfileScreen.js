@@ -9,49 +9,73 @@ import {
   Image,
   RefreshControl
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserProfile } from '../api/auth';
+import { useUser } from '../contexts/UserContext';
+import Colors from '../constants/colors';
 
 export default function ProfileScreen({ navigation }) {
+  const { user, checkAdminAccess, logout: logoutUser } = useUser();
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log('ProfileScreen - User from context:', user);
     loadUserInfo();
-  }, []);
+  }, [user]);
 
   const loadUserInfo = async () => {
     try {
       setLoading(true);
       
-      // Load all user info from AsyncStorage (đã được lưu khi login)
-      const userData = await AsyncStorage.multiGet([
-        'userId', 'userName', 'email', 'firstName', 'lastName', 
-        'phoneNumber', 'fullName', 'balance', 'isEmailVerified', 
-        'isPhoneVerified', 'dateCreated', 'dob', 'avatar'
-      ]);
-      
-      const userInfoMap = {};
-      userData.forEach(([key, value]) => {
-        userInfoMap[key] = value;
-      });
-      
-      if (userInfoMap.userId) {
+      // Sử dụng user data từ UserContext thay vì AsyncStorage
+      if (user) {
         setUserInfo({
-          userId: userInfoMap.userId,
-          userName: userInfoMap.userName,
-          email: userInfoMap.email,
-          firstName: userInfoMap.firstName,
-          lastName: userInfoMap.lastName,
-          phoneNumber: userInfoMap.phoneNumber,
-          fullName: userInfoMap.fullName || `${userInfoMap.firstName || ''} ${userInfoMap.lastName || ''}`.trim() || userInfoMap.userName || 'User',
-          balance: userInfoMap.balance ? parseFloat(userInfoMap.balance) : 0,
-          isEmailVerified: userInfoMap.isEmailVerified === 'true',
-          isPhoneVerified: userInfoMap.isPhoneVerified === 'true',
-          dateCreated: userInfoMap.dateCreated,
-          dob: userInfoMap.dob,
-          avatar: userInfoMap.avatar
+          userId: user.id,
+          userName: user.userName,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.userName || 'User',
+          balance: user.balance || 0,
+          isEmailVerified: user.isEmailVerified || false,
+          isPhoneVerified: user.isPhoneVerified || false,
+          dateCreated: user.dateCreated,
+          dob: user.dob,
+          avatar: user.avatar || ''
         });
+      } else {
+        // Fallback: load từ AsyncStorage nếu UserContext chưa có data
+        const userData = await AsyncStorage.multiGet([
+          'userId', 'userName', 'email', 'firstName', 'lastName', 
+          'phoneNumber', 'fullName', 'balance', 'isEmailVerified', 
+          'isPhoneVerified', 'dateCreated', 'dob', 'avatar'
+        ]);
+        
+        const userInfoMap = {};
+        userData.forEach(([key, value]) => {
+          userInfoMap[key] = value;
+        });
+        
+        if (userInfoMap.userId) {
+          setUserInfo({
+            userId: userInfoMap.userId,
+            userName: userInfoMap.userName,
+            email: userInfoMap.email,
+            firstName: userInfoMap.firstName,
+            lastName: userInfoMap.lastName,
+            phoneNumber: userInfoMap.phoneNumber,
+            fullName: userInfoMap.fullName || `${userInfoMap.firstName || ''} ${userInfoMap.lastName || ''}`.trim() || userInfoMap.userName || 'User',
+            balance: userInfoMap.balance ? parseFloat(userInfoMap.balance) : 0,
+            isEmailVerified: userInfoMap.isEmailVerified === 'true',
+            isPhoneVerified: userInfoMap.isPhoneVerified === 'true',
+            dateCreated: userInfoMap.dateCreated,
+            dob: userInfoMap.dob,
+            avatar: userInfoMap.avatar
+          });
+        }
       }
     } catch (error) {
       console.error('Load user info error:', error);
@@ -74,7 +98,8 @@ export default function ProfileScreen({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.multiRemove(['accessToken', 'userId', 'email', 'firstName', 'lastName']);
+              // Sử dụng UserContext để logout
+              await logoutUser();
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'Login' }],
@@ -136,6 +161,13 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   const settingsItems = [
+    // Chỉ hiển thị Admin Dashboard cho admin
+    ...(checkAdminAccess() ? [{
+      icon: '🛠️',
+      title: 'Admin Dashboard',
+      subtitle: 'Quản lý hệ thống',
+      onPress: () => navigation.navigate('AdminDashboard'),
+    }] : []),
     {
       icon: '⚙️',
       title: 'Cài đặt',
@@ -173,12 +205,18 @@ export default function ProfileScreen({ navigation }) {
             />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{userInfo?.fullName || 'User'}</Text>
-            <Text style={styles.userEmail}>{userInfo?.email || 'user@example.com'}</Text>
-            <Text style={styles.userId}>@{userInfo?.userName || 'username'}</Text>
-            {userInfo?.balance !== undefined && (
+            <Text style={styles.userName}>
+              {user?.fullName || userInfo?.fullName || 'User'}
+            </Text>
+            <Text style={styles.userEmail}>
+              {user?.email || userInfo?.email || 'user@example.com'}
+            </Text>
+            <Text style={styles.userId}>
+              @{user?.userName || userInfo?.userName || 'username'}
+            </Text>
+            {(user?.balance !== undefined || userInfo?.balance !== undefined) && (
               <Text style={styles.userBalance}>
-                💰 Số dư: {userInfo.balance.toLocaleString('vi-VN')} VND
+                💰 Số dư: {(user?.balance || userInfo?.balance || 0).toLocaleString('vi-VN')} VND
               </Text>
             )}
           </View>
@@ -243,10 +281,10 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
     paddingBottom: 30,
@@ -271,7 +309,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   userEmail: {
@@ -299,7 +337,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
   },
   viewDetailButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -308,12 +346,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   quickActionButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderRadius: 12,
-    shadowColor: '#6c5ce7',
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -328,13 +366,13 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     flex: 1,
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 16,
     fontWeight: 'bold',
   },
   quickActionArrow: {
     fontSize: 20,
-    color: 'white',
+    color: Colors.textWhite,
     marginLeft: 10,
   },
   section: {
@@ -344,17 +382,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 15,
   },
   profileItem: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 15,
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -379,31 +417,31 @@ const styles = StyleSheet.create({
   profileItemTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   profileItemSubtitle: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
   },
   profileItemArrow: {
     fontSize: 20,
-    color: '#b2bec3',
+    color: Colors.textHint,
     marginLeft: 10,
   },
   separator: {
     height: 1,
-    backgroundColor: '#e9ecef',
+    backgroundColor: Colors.border,
     marginLeft: 45,
   },
   logoutButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: Colors.error,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
     borderRadius: 12,
-    shadowColor: '#dc3545',
+    shadowColor: Colors.error,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -417,7 +455,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   logoutText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 16,
     fontWeight: 'bold',
   },

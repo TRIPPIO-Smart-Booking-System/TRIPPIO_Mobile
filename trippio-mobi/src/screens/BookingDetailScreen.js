@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import { getBookingById, cancelBooking } from '../api/booking';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../contexts/UserContext';
 
 export default function BookingDetailScreen({ route, navigation }) {
+  const { user } = useUser();
   const { bookingId } = route.params;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ export default function BookingDetailScreen({ route, navigation }) {
           text: 'Có',
           onPress: async () => {
             try {
-              const userId = await AsyncStorage.getItem('userId');
+              const userId = user?.id;
               const response = await cancelBooking(bookingId, userId);
               if (response.success) {
                 Alert.alert('Thành công', 'Đã hủy booking');

@@ -1,19 +1,34 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { resetPassword } from '../api/auth';
+import Colors from '../constants/colors';
 
 export default function ResetPasswordScreen({ route, navigation }) {
   const email = route?.params?.email || '';
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const onReset = async () => {
+    if (!otp.trim() || !newPassword.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ mã OTP và mật khẩu mới');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert('Lỗi', 'Mật khẩu mới phải có ít nhất 6 ký tự');
+      return;
+    }
+
     try {
+      setLoading(true);
       await resetPassword(email, otp, newPassword);
       Alert.alert('Thành công', 'Đặt lại mật khẩu thành công, vui lòng đăng nhập');
       navigation.navigate('Login');
     } catch {
       Alert.alert('Lỗi', 'OTP không hợp lệ hoặc yêu cầu không hợp lệ');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -22,12 +37,11 @@ export default function ResetPasswordScreen({ route, navigation }) {
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.icon}>🔐</Text>
-          <Text style={styles.title}>Đặt lại mật khẩu</Text>
-          <Text style={styles.subtitle}>
+          <Text style={styles.headerTitle}>🔐 Đặt lại mật khẩu</Text>
+          <Text style={styles.headerSubtitle}>
             Nhập mã OTP và mật khẩu mới để hoàn tất
           </Text>
         </View>
@@ -45,6 +59,7 @@ export default function ResetPasswordScreen({ route, navigation }) {
             <TextInput
               style={styles.input}
               placeholder="Nhập mã OTP"
+              placeholderTextColor={Colors.textSecondary}
               value={otp}
               onChangeText={setOtp}
               keyboardType="number-pad"
@@ -57,6 +72,7 @@ export default function ResetPasswordScreen({ route, navigation }) {
             <TextInput
               style={styles.input}
               placeholder="Nhập mật khẩu mới"
+              placeholderTextColor={Colors.textSecondary}
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
@@ -64,15 +80,21 @@ export default function ResetPasswordScreen({ route, navigation }) {
             />
           </View>
 
-          <TouchableOpacity style={styles.resetButton} onPress={onReset}>
-            <Text style={styles.resetButtonText}>🔄 Đặt lại mật khẩu</Text>
+          <TouchableOpacity 
+            style={[styles.resetButton, loading && styles.resetButtonDisabled]} 
+            onPress={onReset}
+            disabled={loading}
+          >
+            <Text style={styles.resetButtonText}>
+              {loading ? 'Đang xử lý...' : '🔄 Đặt lại mật khẩu'}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.backButtonText}>⬅️ Quay lại</Text>
+            <Text style={styles.backButtonText}>← Quay lại</Text>
           </TouchableOpacity>
         </View>
 
@@ -82,7 +104,7 @@ export default function ResetPasswordScreen({ route, navigation }) {
             💡 Mật khẩu mới phải có ít nhất 6 ký tự
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -90,39 +112,38 @@ export default function ResetPasswordScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
+  scrollContainer: {
+    flexGrow: 1,
   },
   header: {
-    alignItems: 'center',
-    paddingTop: 80,
+    backgroundColor: Colors.primary,
+    padding: 30,
+    paddingTop: 60,
     paddingBottom: 40,
+    alignItems: 'center',
   },
-  icon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  title: {
+  headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textWhite,
     marginBottom: 8,
+    textAlign: 'center',
   },
-  subtitle: {
+  headerSubtitle: {
     fontSize: 16,
-    color: '#636e72',
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     lineHeight: 22,
   },
   emailContainer: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
+    margin: 20,
     marginBottom: 30,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -134,61 +155,66 @@ const styles = StyleSheet.create({
   emailLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#636e72',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   emailText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#6c5ce7',
+    color: Colors.primary,
   },
   form: {
     flex: 1,
+    paddingHorizontal: 20,
   },
   inputContainer: {
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#2d3436',
-    marginBottom: 8,
+    color: Colors.textPrimary,
+    marginBottom: 12,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    shadowColor: '#000',
+    borderColor: Colors.inputBorder,
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 2,
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   resetButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 16,
-    shadowColor: '#6c5ce7',
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 4,
     },
     shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  resetButtonDisabled: {
+    backgroundColor: Colors.textSecondary,
+    shadowOpacity: 0.1,
   },
   resetButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -197,16 +223,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButtonText: {
-    color: '#6c5ce7',
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '500',
   },
   helpContainer: {
+    paddingHorizontal: 20,
     paddingBottom: 30,
   },
   helpText: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },

@@ -5,6 +5,7 @@ import { getRoomsByHotel } from '../api/room';
 import { createBooking } from '../api/booking';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../constants/colors';
 
 export default function HotelsScreen({ navigation }) {
   const [hotels, setHotels] = useState([]);
@@ -123,17 +124,17 @@ export default function HotelsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -144,11 +145,11 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   hotelCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     marginBottom: 15,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   hotelName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     flex: 1,
   },
   starsContainer: {
@@ -185,12 +186,12 @@ const styles = StyleSheet.create({
   },
   hotelLocation: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   hotelDescription: {
     fontSize: 14,
-    color: '#636e72',
+    color: Colors.textSecondary,
     lineHeight: 20,
     marginBottom: 12,
   },

@@ -15,10 +15,12 @@ import { getTransportWithTrips } from '../api/transport';
 import { createBooking } from '../api/booking';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../contexts/UserContext';
 
 const { width } = Dimensions.get('window');
 
 export default function TransportDetailScreen({ route, navigation }) {
+  const { user } = useUser();
   const { transportId } = route.params;
   const [transport, setTransport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,7 @@ export default function TransportDetailScreen({ route, navigation }) {
 
   const addTransportToBasket = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
+      const userId = user?.id;
       if (!userId) {
         Alert.alert('Lỗi', 'Vui lòng đăng nhập lại');
         return;

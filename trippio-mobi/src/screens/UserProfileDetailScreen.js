@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateUserProfile } from '../api/auth';
+import { useUser } from '../contexts/UserContext';
+import Colors from '../constants/colors';
 
 export default function UserProfileDetailScreen({ navigation }) {
+  const { user, updateUser } = useUser();
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -22,40 +25,59 @@ export default function UserProfileDetailScreen({ navigation }) {
 
   useEffect(() => {
     loadUserProfile();
-  }, []);
+  }, [user]);
 
   const loadUserProfile = async () => {
     try {
       setLoading(true);
       
-      // Load all user info from AsyncStorage (đã được lưu khi login)
-      const userData = await AsyncStorage.multiGet([
-        'userId', 'userName', 'email', 'firstName', 'lastName', 
-        'phoneNumber', 'fullName', 'balance', 'isEmailVerified', 
-        'isPhoneVerified', 'dateCreated', 'dob', 'avatar'
-      ]);
-      
-      const userInfoMap = {};
-      userData.forEach(([key, value]) => {
-        userInfoMap[key] = value;
-      });
-      
-      if (userInfoMap.userId) {
+      // Sử dụng user data từ UserContext thay vì AsyncStorage
+      if (user) {
         setUserInfo({
-          id: userInfoMap.userId,
-          userName: userInfoMap.userName,
-          email: userInfoMap.email,
-          firstName: userInfoMap.firstName,
-          lastName: userInfoMap.lastName,
-          phoneNumber: userInfoMap.phoneNumber,
-          fullName: userInfoMap.fullName || `${userInfoMap.firstName || ''} ${userInfoMap.lastName || ''}`.trim() || userInfoMap.userName || 'User',
-          balance: userInfoMap.balance ? parseFloat(userInfoMap.balance) : 0,
-          isEmailVerified: userInfoMap.isEmailVerified === 'true',
-          isPhoneVerified: userInfoMap.isPhoneVerified === 'true',
-          dateCreated: userInfoMap.dateCreated,
-          dob: userInfoMap.dob,
-          avatar: userInfoMap.avatar
+          id: user.id,
+          userName: user.userName,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.userName || 'User',
+          balance: user.balance || 0,
+          isEmailVerified: user.isEmailVerified || false,
+          isPhoneVerified: user.isPhoneVerified || false,
+          dateCreated: user.dateCreated,
+          dob: user.dob,
+          avatar: user.avatar || ''
         });
+      } else {
+        // Fallback: load từ AsyncStorage nếu UserContext chưa có data
+        const userData = await AsyncStorage.multiGet([
+          'userId', 'userName', 'email', 'firstName', 'lastName', 
+          'phoneNumber', 'fullName', 'balance', 'isEmailVerified', 
+          'isPhoneVerified', 'dateCreated', 'dob', 'avatar'
+        ]);
+        
+        const userInfoMap = {};
+        userData.forEach(([key, value]) => {
+          userInfoMap[key] = value;
+        });
+        
+        if (userInfoMap.userId) {
+          setUserInfo({
+            id: userInfoMap.userId,
+            userName: userInfoMap.userName,
+            email: userInfoMap.email,
+            firstName: userInfoMap.firstName,
+            lastName: userInfoMap.lastName,
+            phoneNumber: userInfoMap.phoneNumber,
+            fullName: userInfoMap.fullName || `${userInfoMap.firstName || ''} ${userInfoMap.lastName || ''}`.trim() || userInfoMap.userName || 'User',
+            balance: userInfoMap.balance ? parseFloat(userInfoMap.balance) : 0,
+            isEmailVerified: userInfoMap.isEmailVerified === 'true',
+            isPhoneVerified: userInfoMap.isPhoneVerified === 'true',
+            dateCreated: userInfoMap.dateCreated,
+            dob: userInfoMap.dob,
+            avatar: userInfoMap.avatar
+          });
+        }
       }
     } catch (error) {
       console.error('Load user profile error:', error);
@@ -92,6 +114,17 @@ export default function UserProfileDetailScreen({ navigation }) {
       
       console.log('User profile updated:', updatedUser);
       
+      // Update UserContext
+      const updatedUserData = {
+        ...user,
+        ...updatedUser,
+        fullName: updatedUser.firstName && updatedUser.lastName 
+          ? `${updatedUser.firstName} ${updatedUser.lastName}` 
+          : user.fullName
+      };
+      
+      await updateUser(updatedUserData);
+      
       // Update local state
       setUserInfo(prev => ({
         ...prev,
@@ -100,17 +133,6 @@ export default function UserProfileDetailScreen({ navigation }) {
           ? `${updatedUser.firstName} ${updatedUser.lastName}` 
           : prev.fullName
       }));
-      
-      // Update AsyncStorage
-      await AsyncStorage.multiSet([
-        ['firstName', updatedUser.firstName || ''],
-        ['lastName', updatedUser.lastName || ''],
-        ['email', updatedUser.email || ''],
-        ['phoneNumber', updatedUser.phoneNumber || ''],
-        ['fullName', updatedUser.firstName && updatedUser.lastName 
-          ? `${updatedUser.firstName} ${updatedUser.lastName}` 
-          : prev.fullName || '']
-      ]);
       
       setEditModalVisible(false);
       Alert.alert('Thành công', 'Thông tin đã được cập nhật');
@@ -341,52 +363,52 @@ export default function UserProfileDetailScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#6c757d',
+    color: Colors.textSecondary,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
     paddingHorizontal: 40,
   },
   errorText: {
     fontSize: 16,
-    color: '#dc3545',
+    color: Colors.error,
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 16,
     fontWeight: 'bold',
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -396,11 +418,11 @@ const styles = StyleSheet.create({
   avatarSection: {
     alignItems: 'center',
     paddingVertical: 30,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginTop: -20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -414,22 +436,22 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 4,
-    borderColor: '#6c5ce7',
+    borderColor: Colors.primary,
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#636e72',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   userBalance: {
     fontSize: 16,
-    color: '#28a745',
+    color: Colors.success,
     fontWeight: 'bold',
   },
   section: {
@@ -445,24 +467,24 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
   },
   editButton: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   editButtonText: {
-    color: 'white',
+    color: Colors.textWhite,
     fontSize: 12,
     fontWeight: 'bold',
   },
   infoCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -486,17 +508,17 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#6c757d',
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 16,
-    color: '#2d3436',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -504,26 +526,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingTop: 50,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: Colors.inputBorder,
   },
   modalCancelButton: {
     fontSize: 16,
-    color: '#6c757d',
+    color: Colors.textSecondary,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
   },
   modalSaveButton: {
     fontSize: 16,
-    color: '#6c5ce7',
+    color: Colors.primary,
     fontWeight: 'bold',
   },
   modalSaveButtonDisabled: {
-    color: '#ccc',
+    color: Colors.textSecondary,
   },
   modalContent: {
     flex: 1,
@@ -535,18 +557,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2d3436',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    shadowColor: '#000',
+    borderColor: Colors.inputBorder,
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 1,

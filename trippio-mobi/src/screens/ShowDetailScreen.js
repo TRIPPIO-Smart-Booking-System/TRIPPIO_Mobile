@@ -14,10 +14,12 @@ import { getShowById } from '../api/show';
 import { createBooking } from '../api/booking';
 import { addItem } from '../api/basket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../contexts/UserContext';
 
 const { width } = Dimensions.get('window');
 
 export default function ShowDetailScreen({ route, navigation }) {
+  const { user } = useUser();
   const { showId } = route.params;
   const [show, setShow] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function ShowDetailScreen({ route, navigation }) {
 
   const addShowToBasket = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
+      const userId = user?.id;
       if (!userId) {
         Alert.alert('Lỗi', 'Vui lòng đăng nhập lại');
         return;

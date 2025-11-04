@@ -9,13 +9,17 @@ import {
   Image,
   RefreshControl
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { getHotels } from '../api/hotel';
 import { getAllShows } from '../api/show';
 import { getAllTransports } from '../api/transport';
+import { useUser } from '../contexts/UserContext';
+import Colors from '../constants/colors';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }) {
+  const { isAdmin, isStaff, checkAdminAccess } = useUser();
   const [hotels, setHotels] = useState([]);
   const [shows, setShows] = useState([]);
   const [transports, setTransports] = useState([]);
@@ -97,6 +101,24 @@ export default function HomeScreen({ navigation }) {
     { title: 'Phương tiện', icon: '🚌', color: '#00b894', onPress: () => navigation.navigate('Transports'), count: transports.length },
   ];
 
+  const specialFeatures = [
+    { 
+      title: 'AI Assistant', 
+      icon: 'chatbubble-ellipses', 
+      color: '#2196F3', 
+      onPress: () => navigation.navigate('AIChat'),
+      description: 'Trò chuyện với AI'
+    },
+    // Chỉ hiển thị Admin Dashboard cho admin và staff
+    ...(checkAdminAccess() ? [{
+      title: 'Admin Dashboard', 
+      icon: 'settings', 
+      color: '#FF9800', 
+      onPress: () => navigation.navigate('AdminDashboard'),
+      description: 'Quản lý hệ thống'
+    }] : [])
+  ];
+
   return (
     <ScrollView 
       style={styles.container}
@@ -125,6 +147,24 @@ export default function HomeScreen({ navigation }) {
             <View key={index} style={styles.categoryWrapper}>
               {renderCategoryCard(category)}
             </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Special Features */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Tính năng đặc biệt</Text>
+        <View style={styles.featuresGrid}>
+          {specialFeatures.map((feature, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[styles.featureCard, { backgroundColor: feature.color }]} 
+              onPress={feature.onPress}
+            >
+              <Ionicons name={feature.icon} size={32} color="white" />
+              <Text style={styles.featureTitle}>{feature.title}</Text>
+              <Text style={styles.featureDescription}>{feature.description}</Text>
+            </TouchableOpacity>
           ))}
         </View>
       </View>
@@ -206,10 +246,10 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: Colors.primary,
     padding: 20,
     paddingTop: 50,
     paddingBottom: 30,
@@ -220,7 +260,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 8,
   },
   welcomeText: {
@@ -246,11 +286,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2d3436',
+    color: Colors.textPrimary,
   },
   seeAllText: {
     fontSize: 14,
-    color: '#6c5ce7',
+    color: Colors.primary,
     fontWeight: '600',
   },
   categoriesGrid: {
@@ -265,7 +305,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -281,7 +321,7 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.textWhite,
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -298,9 +338,9 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   itemCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -388,5 +428,38 @@ const styles = StyleSheet.create({
     top: 40,
     right: 40,
     backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  featureCard: {
+    flex: 1,
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    shadowColor: Colors.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  featureTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'white',
+    marginTop: 8,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  featureDescription: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
   },
 });
