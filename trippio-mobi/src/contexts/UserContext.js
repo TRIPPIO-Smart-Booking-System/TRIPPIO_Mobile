@@ -106,7 +106,25 @@ export const UserProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('userData');
+      // Clear all user-related data
+      await AsyncStorage.multiRemove([
+        'userData',
+        'accessToken',
+        'refreshToken',
+        'userId',
+        'userName',
+        'email',
+        'firstName',
+        'lastName',
+        'phoneNumber',
+        'fullName',
+        'balance',
+        'isEmailVerified',
+        'isPhoneVerified',
+        'dateCreated',
+        'dob',
+        'avatar'
+      ]);
       setUser(null);
       setIsAdmin(false);
       setIsStaff(false);

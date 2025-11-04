@@ -66,15 +66,24 @@ function MainTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6c5ce7',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#2563EB',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
-          borderTopColor: '#e9ecef',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          borderTopColor: '#E2E8F0',
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 65,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
         },
         headerShown: false,
       })}
@@ -201,7 +210,11 @@ export default function App() {
         <Stack.Screen 
           name="Orders" 
           component={OrdersScreen}
-          options={{ title: 'Đơn hàng' }}
+          options={{ 
+            title: 'Đơn hàng',
+            headerShown: false, // We have custom header
+            gestureEnabled: true, // Enable swipe back
+          }}
         />
         <Stack.Screen 
           name="OrderDetail" 
