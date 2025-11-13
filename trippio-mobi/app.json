@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -16,17 +16,26 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.trippio.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_BASE_URL": "https://trippio.azurewebsites.net"
+      "API_BASE_URL": "https://trippiowebapp.azurewebsites.net",
+      "eas": {
+        "projectId": "e0d925f9-2163-4967-925b-2dc34fdca0f3"
+      }
     },
     "plugins": [
       "expo-web-browser"

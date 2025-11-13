@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { getOrderById } from '../../api/order';
 import { styles } from './styles';
+import Colors from '../../constants/colors';
 
 const getStatusColor = (status) => {
   switch (status?.toLowerCase()) {
@@ -208,6 +209,19 @@ export default function OrderDetailScreen({ route, navigation }) {
           </Text>
         </View>
       </View>
+
+      {/* Action Buttons */}
+      {order.status === 'Confirmed' && (
+        <View style={styles.actionSection}>
+          <TouchableOpacity
+            style={styles.reviewButton}
+            onPress={() => navigation.navigate('Review', { orderId: order.id, order })}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.reviewButtonText}>⭐ Đánh giá đơn hàng</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 }

@@ -152,6 +152,7 @@ const AdminDashboardScreen = ({ navigation }) => {
           { key: ADMIN_CONFIG.SECTIONS.TRANSPORT, icon: 'car', label: 'Phương tiện', color: Colors.warning },
           { key: ADMIN_CONFIG.SECTIONS.SHOWS, icon: 'musical-notes', label: 'Giải trí', color: Colors.secondary },
           { key: ADMIN_CONFIG.SECTIONS.PAYMENTS, icon: 'card', label: 'Thanh toán', color: Colors.error },
+          { key: ADMIN_CONFIG.SECTIONS.REVIEWS, icon: 'star', label: 'Đánh giá', color: Colors.warning },
           { key: ADMIN_CONFIG.SECTIONS.ANALYTICS, icon: 'analytics', label: 'Thống kê', color: Colors.primaryDark },
           { key: ADMIN_CONFIG.SECTIONS.SETTINGS, icon: 'settings', label: 'Cài đặt', color: Colors.textSecondary },
         ].map((item) => (
@@ -161,7 +162,13 @@ const AdminDashboardScreen = ({ navigation }) => {
               styles.menuItem,
               selectedSection === item.key && styles.menuItemActive
             ]}
-            onPress={() => setSelectedSection(item.key)}
+            onPress={() => {
+              if (item.key === ADMIN_CONFIG.SECTIONS.REVIEWS) {
+                navigation.navigate('AdminReviews');
+              } else {
+                setSelectedSection(item.key);
+              }
+            }}
           >
             <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
               <Ionicons name={item.icon} size={24} color={Colors.textWhite} />

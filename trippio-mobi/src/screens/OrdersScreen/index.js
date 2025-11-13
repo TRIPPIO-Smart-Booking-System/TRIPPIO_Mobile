@@ -90,6 +90,10 @@ export default function OrdersScreen({ navigation }) {
     navigation.navigate('Payment', { order });
   }, [navigation]);
 
+  const handleReviewPress = useCallback((order) => {
+    navigation.navigate('Review', { orderId: order.id, order });
+  }, [navigation]);
+
   const renderOrderItem = useCallback(({ item }) => (
     <View style={styles.orderCard}>
       <TouchableOpacity
@@ -138,6 +142,16 @@ export default function OrdersScreen({ navigation }) {
           </TouchableOpacity>
         )}
         
+        {item.status === 'Confirmed' && (
+          <TouchableOpacity
+            style={styles.reviewButton}
+            onPress={() => handleReviewPress(item)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.reviewButtonText}>⭐ Đánh giá</Text>
+          </TouchableOpacity>
+        )}
+        
         <TouchableOpacity
           style={styles.detailButton}
           onPress={() => handleOrderPress(item.id)}
@@ -147,7 +161,7 @@ export default function OrdersScreen({ navigation }) {
         </TouchableOpacity>
       </View>
     </View>
-  ), [handleOrderPress, handlePaymentPress, getStatusText]);
+  ), [handleOrderPress, handlePaymentPress, handleReviewPress, getStatusText]);
 
   if (loading && orders.length === 0) {
     return (

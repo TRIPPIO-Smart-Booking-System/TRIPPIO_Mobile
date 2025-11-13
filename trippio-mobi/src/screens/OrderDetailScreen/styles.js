@@ -250,5 +250,30 @@ export const styles = StyleSheet.create({
     color: Colors.success,
     letterSpacing: -0.5,
   },
+  actionSection: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    marginTop: 8,
+  },
+  reviewButton: {
+    backgroundColor: Colors.warning,
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: Colors.warning,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  reviewButtonText: {
+    color: Colors.textWhite,
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+  },
 });
 

@@ -36,10 +36,12 @@ import PaymentScreen from './src/screens/PaymentScreen';
 import PaymentHistoryScreen from './src/screens/PaymentHistoryScreen';
 import BookingsScreen from './src/screens/BookingsScreen';
 import BookingDetailScreen from './src/screens/BookingDetailScreen';
+import ReviewScreen from './src/screens/ReviewScreen';
 
 // AI & Admin Screens
 import AIChatScreen from './src/screens/AIChatScreen';
 import AdminDashboardScreen from './src/screens/AdminDashboardScreen';
+import AdminReviewsScreen from './src/screens/AdminReviewsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -241,6 +243,11 @@ export default function App() {
           component={BookingDetailScreen}
           options={{ title: 'Chi tiết booking' }}
         />
+        <Stack.Screen 
+          name="Review" 
+          component={ReviewScreen}
+          options={{ title: 'Đánh giá đơn hàng' }}
+        />
 
         {/* AI & Admin Screens */}
         <Stack.Screen 
@@ -251,6 +258,11 @@ export default function App() {
         <Stack.Screen 
           name="AdminDashboard" 
           component={AdminDashboardScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="AdminReviews" 
+          component={AdminReviewsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

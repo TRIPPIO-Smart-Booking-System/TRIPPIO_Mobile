@@ -9,6 +9,7 @@ export const ADMIN_CONFIG = {
     TRANSPORT: 'transport',
     SHOWS: 'shows',
     PAYMENTS: 'payments',
+    REVIEWS: 'reviews',
     ANALYTICS: 'analytics',
     SETTINGS: 'settings'
   },

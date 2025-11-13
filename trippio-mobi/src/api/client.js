@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Production API URL
-const BASE_URL = 'https://trippio.azurewebsites.net';
+const BASE_URL = 'https://trippiowebapp.azurewebsites.net';
 
 export const client = axios.create({
   baseURL: BASE_URL,

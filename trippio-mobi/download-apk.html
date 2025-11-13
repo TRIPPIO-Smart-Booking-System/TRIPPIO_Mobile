@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Trippio Mobile APK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px auto;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #qrcode {
+            margin: 0 auto;
+        }
+
+        .download-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .info h3 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info li {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .version {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff5e6;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .instructions h4 {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .instructions ol {
+            color: #78350f;
+            font-size: 13px;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+        }
+    </style>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1>Trippio Mobile</h1>
+        <p class="subtitle">Tải ứng dụng Trippio về điện thoại Android của bạn</p>
+
+        <div class="qr-container">
+            <canvas id="qrcode"></canvas>
+        </div>
+
+        <a href="#" id="downloadLink" class="download-button" download>
+            📥 Tải APK về máy
+        </a>
+
+        <div class="info">
+            <h3>Thông tin ứng dụng</h3>
+            <ul>
+                <li>Version: 1.0.0</li>
+                <li>Platform: Android</li>
+                <li>Kích thước: ~25 MB</li>
+                <li>Yêu cầu: Android 6.0+</li>
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h4>📱 Hướng dẫn cài đặt:</h4>
+            <ol>
+                <li>Quét mã QR code bằng camera điện thoại</li>
+                <li>Hoặc nhấn nút "Tải APK về máy"</li>
+                <li>Cho phép cài đặt từ nguồn không xác định (nếu được yêu cầu)</li>
+                <li>Mở file APK đã tải và cài đặt</li>
+            </ol>
+        </div>
+
+        <p class="version">Trippio © 2024 - All rights reserved</p>
+    </div>
+
+    <script>
+        // 🔧 CẤU HÌNH: Thay đổi URL này thành link APK thực tế của bạn
+        const APK_URL = 'https://your-domain.com/apk/trippio.apk';
+        
+        // Version info
+        const APP_VERSION = '1.0.0';
+        const APP_SIZE = '25 MB';
+
+        // Set download link
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = APK_URL;
+
+        // Generate QR Code
+        QRCode.toCanvas(document.getElementById('qrcode'), APK_URL, {
+            width: 256,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) {
+                console.error('QR Code generation error:', error);
+                document.getElementById('qrcode').style.display = 'none';
+            }
+        });
+
+        // Update version info if needed
+        document.querySelector('.info li:first-child').textContent = `Version: ${APP_VERSION}`;
+        document.querySelector('.info li:nth-child(3)').textContent = `Kích thước: ~${APP_SIZE}`;
+
+        // Track download (optional - for analytics)
+        downloadLink.addEventListener('click', function() {
+            console.log('APK download started');
+            // You can add analytics tracking here
+            // Example: gtag('event', 'download', { 'event_category': 'APK' });
+        });
+
+        // Check if mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            // Auto-download on mobile (optional)
+            // downloadLink.click();
+        }
+    </script>
+</body>
+</html>
+

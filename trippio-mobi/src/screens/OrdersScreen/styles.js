@@ -174,6 +174,26 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
+  reviewButton: {
+    flex: 1,
+    backgroundColor: Colors.warning,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: Colors.warning,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  reviewButtonText: {
+    color: Colors.textWhite,
+    fontSize: 15,
+    fontWeight: '700',
+  },
   emptyState: {
     flex: 1,
     justifyContent: 'center',

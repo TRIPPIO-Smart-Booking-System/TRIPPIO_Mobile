@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Trippio APK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d3748;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .qr-container {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .qr-container.show {
+            display: block;
+        }
+
+        #qrcode {
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .download-qr {
+            margin-top: 20px;
+        }
+
+        .download-qr button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            margin-top: 10px;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e6fffa;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+        }
+
+        .info p {
+            color: #065f46;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .examples {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff5e6;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .examples h3 {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .examples ul {
+            color: #78350f;
+            font-size: 13px;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .examples code {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔲 QR Code Generator</h1>
+        <p style="text-align: center; color: #718096; margin-bottom: 30px;">
+            Tạo QR code cho link download APK
+        </p>
+
+        <div class="form-group">
+            <label for="urlInput">URL của APK (hoặc bất kỳ link nào):</label>
+            <input 
+                type="url" 
+                id="urlInput" 
+                placeholder="https://your-domain.com/apk/trippio.apk"
+                value="https://your-domain.com/apk/trippio.apk"
+            >
+        </div>
+
+        <button onclick="generateQR()">🎯 Tạo QR Code</button>
+
+        <div class="qr-container" id="qrContainer">
+            <h3 style="margin-bottom: 20px; color: #2d3748;">QR Code của bạn:</h3>
+            <canvas id="qrcode"></canvas>
+            <div class="download-qr">
+                <button onclick="downloadQR()">💾 Tải QR Code về máy</button>
+            </div>
+        </div>
+
+        <div class="info">
+            <p>
+                <strong>💡 Tip:</strong> Sau khi tạo QR code, bạn có thể:
+                <br>• Tải về và in ra
+                <br>• Chèn vào website
+                <br>• Share trên social media
+            </p>
+        </div>
+
+        <div class="examples">
+            <h3>📝 Ví dụ URL:</h3>
+            <ul>
+                <li>Direct APK: <code>https://example.com/apk/app.apk</code></li>
+                <li>Download page: <code>https://example.com/download</code></li>
+                <li>Google Drive: <code>https://drive.google.com/...</code></li>
+                <li>Dropbox: <code>https://dropbox.com/s/...</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentQRDataURL = null;
+
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                alert('Vui lòng nhập URL!');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('URL không hợp lệ! Vui lòng nhập URL đầy đủ (bắt đầu với http:// hoặc https://)');
+                return;
+            }
+
+            const canvas = document.getElementById('qrcode');
+            const container = document.getElementById('qrContainer');
+
+            // Clear previous QR code
+            canvas.width = 256;
+            canvas.height = 256;
+
+            // Generate QR Code
+            QRCode.toCanvas(canvas, url, {
+                width: 256,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                },
+                errorCorrectionLevel: 'H'
+            }, function (error) {
+                if (error) {
+                    console.error('QR Code generation error:', error);
+                    alert('Không thể tạo QR code. Vui lòng thử lại!');
+                    return;
+                }
+
+                // Show container
+                container.classList.add('show');
+
+                // Store data URL for download
+                currentQRDataURL = canvas.toDataURL('image/png');
+
+                console.log('QR Code generated successfully for:', url);
+            });
+        }
+
+        function downloadQR() {
+            if (!currentQRDataURL) {
+                alert('Vui lòng tạo QR code trước!');
+                return;
+            }
+
+            // Get URL for filename
+            const url = document.getElementById('urlInput').value.trim();
+            const filename = url.split('/').pop().split('?')[0] || 'qrcode';
+            const safeFilename = filename.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'qrcode';
+
+            // Create download link
+            const link = document.createElement('a');
+            link.download = `qrcode_${safeFilename}.png`;
+            link.href = currentQRDataURL;
+            link.click();
+        }
+
+        // Allow Enter key to generate QR
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+
+        // Auto-generate on page load if URL is provided
+        window.addEventListener('load', function() {
+            const urlInput = document.getElementById('urlInput');
+            if (urlInput.value && urlInput.value !== 'https://your-domain.com/apk/trippio.apk') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>
+
